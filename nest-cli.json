@@ -1,8 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/jkbooks-api/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/jkbooks-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/jkbooks-api",
+  "projects": {
+    "jkbooks": {
+      "type": "application",
+      "root": "apps/jkbooks-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/jkbooks-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/jkbooks-api/tsconfig.app.json"
+      }
+    },
+    "jkbooks-batch": {
+      "type": "application",
+      "root": "apps/jkbooks-batch",
+      "entryFile": "main",
+      "sourceRoot": "apps/jkbooks-batch/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/jkbooks-batch/tsconfig.app.json"
+      }
+    }
   }
 }
