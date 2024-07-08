@@ -56,7 +56,7 @@ const MembberSchema = new Schema({
         type: String,
     },
 
-    memberProperties: {
+    memberBooks: {
         type: Number,
         default: 0,
     },
