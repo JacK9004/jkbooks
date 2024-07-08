@@ -10,7 +10,7 @@
   "monorepo": true,
   "root": "apps/jkbooks-api",
   "projects": {
-    "jkbooks": {
+    "jkbooks-api": {
       "type": "application",
       "root": "apps/jkbooks-api",
       "entryFile": "main",
