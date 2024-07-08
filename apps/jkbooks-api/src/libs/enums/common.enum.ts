@@ -7,6 +7,7 @@ export enum Message {
     UOLOAD_FAILED = 'UOLOAD FAILED',
     BAD_REQUEST = 'BAD REQUEST',
 
+    USED_MEMBER_NICK_OR_PHONE = 'Already used member nick or phone',
     NO_MEMBER_NICK = 'No member with that member nick!',
     BLOCKED_USER = 'You have been blocked',
     WRONG_PASSWORD = 'Wrong password, try again',
