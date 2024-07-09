@@ -6,7 +6,7 @@ export enum Message {
     CREATE_FAILED = 'CREATE FAILED',
     UPDATE_FAILED = 'UPDATE FAILED',
     REMOVE_FAILED = 'REMOVE FAILED',
-    UOLOAD_FAILED = 'UOLOAD FAILED',
+    UPLOAD_FAILED = 'UPLOAD FAILED',
     BAD_REQUEST = 'BAD REQUEST',
 
     USED_MEMBER_NICK_OR_PHONE = 'Already used member nick or phone',
