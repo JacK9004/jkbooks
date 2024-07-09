@@ -9,6 +9,7 @@ import { ObjectId } from 'mongoose';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { MemberUpdate } from '../../libs/dto/member/member.update';
 
 @Resolver()
 export class MemberResolver {
@@ -26,16 +27,6 @@ export class MemberResolver {
         return this.memberService.login(input);
     }
 
-    //Authentication
-    @UseGuards(AuthGuard)
-    @Mutation(() => String)
-    public async updateMember(@AuthMember('_id') memberId: ObjectId): Promise<string> {
-        console.log('Mutation: updateMember');
-        console.log(typeof memberId);
-        console.log(memberId);
-        return this.memberService.updateMember();
-    }
-
     //Example for chackAuth
     @UseGuards(AuthGuard)
     @Query(() => String)
@@ -51,6 +42,18 @@ export class MemberResolver {
     public async checkAuthRoles(@AuthMember() authMember: Member): Promise<string> {
         console.log('Query: checkAuthRoles');       
         return `Hi ${authMember.memberNick}, you are ${authMember.memberType} (memberId: ${authMember._id})`;
+    }    
+
+    @UseGuards(AuthGuard)   //Authentication
+    @Mutation(() => Member)
+    public async updateMember(
+        @Args('input') input: MemberUpdate,
+        @AuthMember('_id') memberId: ObjectId
+        ): Promise<Member> {
+        console.log('Mutation: updateMember');        
+        delete input._id;
+        return this.memberService.updateMember(memberId, input);
+
     }
 
     @Query(() => String)
@@ -59,8 +62,7 @@ export class MemberResolver {
         return this.memberService.getMember();
     }
 
-    //Authoreization: ADMIN
-    @Roles(MemberType.ADMIN)
+    @Roles(MemberType.ADMIN)    //Authoreization: ADMIN
     @UseGuards(RolesGuard)
     @Mutation(() => String)
     public async getAllMembersByAdmin(): Promise<string> {       ;
@@ -74,3 +76,5 @@ export class MemberResolver {
         return this.memberService.updateMemberByAdmin();
     }
 }
+
+// 1.PIPE, 2.Guard, 3.Interceptor, 4. Resolver Meber service modeles executed
