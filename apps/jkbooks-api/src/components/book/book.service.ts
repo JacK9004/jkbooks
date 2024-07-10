@@ -9,6 +9,8 @@ import { ViewService } from '../view/view.service';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { BookStatus } from '../../libs/enums/book.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
+import * as moment from 'moment';
+import { BookUpdate } from '../../libs/dto/book/book.update';
 
 @Injectable()
 export class BookService {
@@ -69,5 +71,35 @@ public async bookStatsEditor(input: StatisticModifier): Promise<Book> {
         )
         .exec();
 }
+
+public async updateBook(memberId: ObjectId, input: BookUpdate): Promise<Book> {
+    let { bookStatus, soldAt, deletedAt } = input;
+    const search: T = {
+        _id: input._id,
+        memberId: memberId,
+        bookStatus: BookStatus.AVAILABLE,
+    };
+
+    if (bookStatus === BookStatus.SOLD_OUT) soldAt = moment().toDate();
+    else if (bookStatus === BookStatus.DISCONTINUED) deletedAt = moment().toDate();
+
+    const result = await this.bookModel
+        .findOneAndUpdate(search, input, {
+            new: true,
+        })
+        .exec();
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    if (soldAt || deletedAt) {
+        await this.memberService.memberStatsEditor({
+            _id: memberId,
+            targetKey:'memberBooks',
+            modifier: -1,
+        });
+    }
+
+    return result;
+}
+
 
 }

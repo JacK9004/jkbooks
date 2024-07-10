@@ -10,6 +10,7 @@ import { ObjectId } from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { BookUpdate } from '../../libs/dto/book/book.update';
 
 @Resolver()
 export class BookResolver {
@@ -37,4 +38,17 @@ export class BookResolver {
         const bookId = shapeIntoMongoObjectId(input);
         return await this.bookService.getBook(memberId, bookId);
     }
+
+    @Roles(MemberType.AGENT)
+    @UseGuards(RolesGuard)
+    @Mutation(() => Book)
+    public async updateBook(
+        @Args('input') input: BookUpdate,
+        @AuthMember('_id') memberId: ObjectId,
+    ): Promise<Book> {
+        console.log('Mutation: updateBook');
+        input._id = shapeIntoMongoObjectId(input._id);
+        return await this.bookService.updateBook(memberId, input);
+    }
+
 }
