@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import BookSchema from '../../schemas/book.model';
 import { AuthModule } from '../auth/auth.module';
 import { ViewModule } from '../view/view.module';
+import { MemberModule } from '../member/member.module';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -14,7 +15,8 @@ import { ViewModule } from '../view/view.module';
     }
   ]), 
   AuthModule,
-  ViewModule
+  ViewModule,
+  MemberModule,
 ],
   providers: [BookResolver, BookService]
 })

@@ -24,10 +24,14 @@ const BookSchema = new Schema(
 		ageCategory: {
 			type: String,
 			enum: AgeCategory,
-			required: true,
 		  },
 
 		bookTitle: {
+			type: String,
+			required: true,
+		},
+
+		bookAuthor: {
 			type: String,
 			required: true,
 		},
@@ -38,7 +42,7 @@ const BookSchema = new Schema(
 		},
 
 		bookDate: {
-			type: Date,
+			type: String,
 			required: true,
 		  },
 		  
@@ -52,13 +56,10 @@ const BookSchema = new Schema(
 			required: true,
 		  },
 
-		  bookLanguages: {
-			type: [{
-			  type: String,
-			  enum: ['ENGLISH', 'RUSSIAN', 'UZBEK', 'KOREAN'],
+		  bookLanguages: {	
+			  type: [String],
+			  enum: BookLanguage,
 			  required: true,
-			}],
-			default: BookLanguage.ENGLISH,
 		  },
 
 		bookViews: {
@@ -90,21 +91,16 @@ const BookSchema = new Schema(
 			type: String,
 		},
 
-		bookAuthor: {
-			type: Boolean,
-			default: false,
-		},
-
 		bookRent: {
 			type: Boolean,
 			default: false,
 		},
 
-		storeId: {
+		memberId: {
 			type: Schema.Types.ObjectId,
 			required: true,
-			ref: 'Store',
-		  },
+			ref: 'Member',
+		   },
 
 		soldAt: {
 			type: Date,
