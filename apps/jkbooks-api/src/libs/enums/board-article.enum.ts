@@ -12,7 +12,7 @@ registerEnumType(BoardArticleCategory, {
 
 export enum BoardArticleStatus {
     ACTIVE = 'ACTIVE',
-    ARCHIVED = 'ARCHIVED',
+    ADELETE = 'DELETE',
 }
 registerEnumType(BoardArticleStatus, {
 	name: 'BoardArticleStatus',
