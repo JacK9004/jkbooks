@@ -228,4 +228,31 @@ public async getAllBooksByAdmin(input: AllBooksInquiry): Promise<Books> {
         return result[0];
 }
 
+public async updateBookByAdmin(input: BookUpdate): Promise<Book> {
+    let { bookStatus, soldAt, deletedAt } = input;
+    const search: T = {
+        _id: input._id,
+        bookStatus: BookStatus.AVAILABLE,
+    };
+
+    if (bookStatus === BookStatus.SOLD_OUT) soldAt = moment().toDate();
+    else if (bookStatus === BookStatus.DISCONTINUED) deletedAt = moment().toDate();
+
+    const result = await this.bookModel
+        .findOneAndUpdate(search, input, {
+            new: true,
+        })
+        .exec();
+        if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+        if (soldAt || deletedAt) {
+            await this.memberService.memberStatsEditor({
+                _id: result.memberId,
+                targetKey:'memberBooks',
+                modifier: -1,
+            });
+        }
+
+        return result;
+    }
 }

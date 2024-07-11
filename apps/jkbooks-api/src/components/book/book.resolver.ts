@@ -73,18 +73,29 @@ export class BookResolver {
         return await this.bookService.getAgentBooks(memberId, input);
     }
 
-        /** ADMIN **/
+    /** ADMIN **/
 
-        @Roles(MemberType.ADMIN)
-        @UseGuards(RolesGuard)
-        @Query((returns) => Books)
-        public async getAllBooksByAdmin(
-            @Args('input') input: AllBooksInquiry,
-            @AuthMember('_id') memberId: ObjectId,
-        ): Promise<Books> {
-            console.log('Query: getAllBooksByAdmin');
-            return await this.bookService.getAllBooksByAdmin(input);
-        }
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Query((returns) => Books)
+    public async getAllBooksByAdmin(
+        @Args('input') input: AllBooksInquiry,
+        @AuthMember('_id') memberId: ObjectId,
+    ): Promise<Books> {
+        console.log('Query: getAllBooksByAdmin');
+        return await this.bookService.getAllBooksByAdmin(input);
+    }
+
+
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Mutation((returns) => Book)
+    public async updateBookByAdmin(
+        @Args('input') input: BookUpdate): Promise<Book> {
+            console.log('Mutation: updateBookByAdmin');
+            input._id = shapeIntoMongoObjectId(input._id);
+            return await this.bookService.updateBookByAdmin(input);
+        }  
     
 
 }
