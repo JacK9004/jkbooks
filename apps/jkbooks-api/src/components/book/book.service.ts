@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Book, Books } from '../../libs/dto/book/book';
 import { MemberService } from '../member/member.service';
-import { AgentBooksInquiry, BookInput, BooksInquiry } from '../../libs/dto/book/book.input';
+import { AgentBooksInquiry, AllBooksInquiry, BookInput, BooksInquiry } from '../../libs/dto/book/book.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -176,6 +176,37 @@ public async getAgentBooks(memberId: ObjectId, input: AgentBooksInquiry): Promis
 
     const result = await this.bookModel.
         aggregate([
+            { $match: match},
+            { $sort: sort},
+            {
+                $facet: {
+                    list: [
+                        { $skip: (input.page - 1) * input.limit},
+                        { $limit: input.limit },
+                        lookupMember,
+                        { $unwind: '$memberData' },
+                    ],
+                    metaCounter: [{ $count: 'total' }],
+                },
+            },
+
+        ])
+        .exec()
+        if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+        return result[0];
+}
+
+public async getAllBooksByAdmin(input: AllBooksInquiry): Promise<Books> {
+    const { bookStatus, bookCollectionList } = input.search;
+    const match: T = {};
+    const sort: T = {[input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+    if (bookStatus) match.bookStatus = bookStatus;
+    if (bookCollectionList) match.bookCollection = { $in: bookCollectionList };
+
+    const result = await this.bookModel
+         .aggregate([
             { $match: match},
             { $sort: sort},
             {

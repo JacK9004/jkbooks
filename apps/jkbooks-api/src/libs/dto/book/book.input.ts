@@ -206,3 +206,41 @@ export class BookInput {
         @Field(() => ABISearch)
         search: ABISearch;
     }
+
+        @InputType()
+    class ALBISearch {
+        @IsOptional()
+        @Field(() => BookStatus, { nullable: true })
+        bookStatus?: BookStatus;
+
+        @IsOptional()
+        @Field(() => [BookCollection], { nullable: true })
+        bookCollectionList?: BookCollection[];
+    }
+
+
+    @InputType()
+    export class AllBooksInquiry {
+        @IsNotEmpty()
+        @Min(1)
+        @Field(() => Int)
+        page: number;
+
+        @IsNotEmpty()
+        @Min(1)
+        @Field(() => Int)
+        limit: number;
+
+        @IsOptional()
+        @IsIn(availableBookSorts)
+        @Field(() => String, { nullable: true })
+        sort?: string;
+
+        @IsOptional()
+        @Field(() => Direction, { nullable: true })
+        direction?: Direction;
+
+        @IsNotEmpty()
+        @Field(() => ALBISearch)
+        search: ALBISearch;
+    }
