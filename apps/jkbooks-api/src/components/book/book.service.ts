@@ -60,19 +60,6 @@ public async getBook(memberId: ObjectId, bookId: ObjectId): Promise<Book> {
     return targetBook;
 }
 
-public async bookStatsEditor(input: StatisticModifier): Promise<Book> {
-    const { _id, targetKey, modifier } = input;
-    return await this.bookModel
-        .findByIdAndUpdate(
-            _id,
-            { $inc: { [targetKey]: modifier } },
-            {
-                new: true,
-            },
-        )
-        .exec();
-}
-
 public async updateBook(memberId: ObjectId, input: BookUpdate): Promise<Book> {
     let { bookStatus, soldAt, deletedAt } = input;
     const search: T = {
@@ -262,6 +249,19 @@ public async updateBookByAdmin(input: BookUpdate): Promise<Book> {
         if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
 
         return result;
+    }
+
+    public async bookStatsEditor(input: StatisticModifier): Promise<Book> {
+        const { _id, targetKey, modifier } = input;
+        return await this.bookModel
+            .findByIdAndUpdate(
+                _id,
+                { $inc: { [targetKey]: modifier } },
+                {
+                    new: true,
+                },
+            )
+            .exec();
     }
 
 }
