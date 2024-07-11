@@ -18,6 +18,7 @@ import { MemberModule } from '../member/member.module';
   ViewModule,
   MemberModule,
 ],
-  providers: [BookResolver, BookService]
+  providers: [BookResolver, BookService],
+  exports: [BookService],
 })
 export class BookModule {}
