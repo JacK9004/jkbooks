@@ -255,4 +255,13 @@ public async updateBookByAdmin(input: BookUpdate): Promise<Book> {
 
         return result;
     }
+
+    public async removeBookByAdmin(bookId: ObjectId): Promise<Book> {
+        const search: T = { _id: bookId, bookStatus: BookStatus.DISCONTINUED };
+        const result = await this.bookModel.findOneAndDelete(search).exec();
+        if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+        return result;
+    }
+
 }

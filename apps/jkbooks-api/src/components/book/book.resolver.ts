@@ -92,10 +92,19 @@ export class BookResolver {
     @Mutation((returns) => Book)
     public async updateBookByAdmin(
         @Args('input') input: BookUpdate): Promise<Book> {
-            console.log('Mutation: updateBookByAdmin');
-            input._id = shapeIntoMongoObjectId(input._id);
-            return await this.bookService.updateBookByAdmin(input);
-        }  
+        console.log('Mutation: updateBookByAdmin');
+        input._id = shapeIntoMongoObjectId(input._id);
+        return await this.bookService.updateBookByAdmin(input);
+    }
+    
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Mutation((returns) => Book)
+    public async removeBookByAdmin(@Args('bookId') input: string): Promise<Book> {
+        console.log('Mutation: removeBookByAdmin');
+        const bookId = shapeIntoMongoObjectId(input);
+        return await this.bookService.removeBookByAdmin(bookId);
+    }
     
 
 }
