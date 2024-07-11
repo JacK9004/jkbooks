@@ -1,16 +1,17 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { Book } from '../../libs/dto/book/book';
+import { Book, Books } from '../../libs/dto/book/book';
 import { MemberService } from '../member/member.service';
-import { BookInput } from '../../libs/dto/book/book.input';
-import { Message } from '../../libs/enums/common.enum';
+import { BookInput, BooksInquiry } from '../../libs/dto/book/book.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { BookStatus } from '../../libs/enums/book.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import * as moment from 'moment';
 import { BookUpdate } from '../../libs/dto/book/book.update';
+import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class BookService {
@@ -99,6 +100,67 @@ public async updateBook(memberId: ObjectId, input: BookUpdate): Promise<Book> {
     }
 
     return result;
+}
+
+
+public async getBooks(memberId: ObjectId, input: BooksInquiry): Promise<Books> {
+    const match: T = { bookStatus: BookStatus.AVAILABLE };
+    const sort: T = { [ input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+   
+    this.shapeMatchQuery(match, input);
+    console.log('match:', match);
+
+    const result = await this.bookModel
+        .aggregate([
+            { $match: match },
+            { $sort: sort },
+            {
+                $facet: {
+                    list: [
+                        { $skip: (input.page - 1) * input.limit },
+                        { $limit: input.limit },
+                        // meLiked
+                        lookupMember,
+                        { $unwind: '$memberData' },
+                    ],
+                    metaCounter: [{ $count: 'total' }],
+                },
+            },
+        ])
+        .exec();
+        if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+        return result[0];
+}
+private shapeMatchQuery(match: T, input: BooksInquiry): void {
+    const {
+        memberId,
+        collectionList,
+        titleList,
+        authorList,
+        typeList,
+        languageList,
+        periodsRange,
+        pricesRange,
+        options,
+        text,
+    } = input.search;
+    if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
+    if (collectionList) match.bookCollection = { $in: collectionList };
+    if (titleList) match.bookTitle = { $in: titleList };
+    if (authorList) match.bookAuthor = { $in: authorList };
+    if (typeList) match.bookType = { $in: typeList };
+    if (languageList) match.bookLanguages = { $in: languageList };
+
+    if (pricesRange) match.bookPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
+    if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
+
+    if (text) match.bookTitle = { $regex: new RegExp(text, 'i') };
+    if (options) {
+        match['$or'] = options.map((ele) => {
+            return { [ele]: true };
+        });
+    }
 }
 
 
