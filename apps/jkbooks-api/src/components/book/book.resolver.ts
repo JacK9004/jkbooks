@@ -5,7 +5,7 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Book, Books } from '../../libs/dto/book/book';
-import { BookInput, BooksInquiry } from '../../libs/dto/book/book.input';
+import { AgentBooksInquiry, BookInput, BooksInquiry } from '../../libs/dto/book/book.input';
 import { ObjectId } from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { WithoutGuard } from '../auth/guards/without.guard';
@@ -59,6 +59,18 @@ export class BookResolver {
     ): Promise<Books> {
         console.log('Query: getBooks');
         return await this.bookService.getBooks(memberId, input);
+    }
+
+
+    @Roles(MemberType.AGENT)
+    @UseGuards(RolesGuard)
+    @Query((returns) => Books)
+    public async getAgentBooks(
+        @Args('input') input: AgentBooksInquiry,
+        @AuthMember('_id') memberId: ObjectId,
+    ): Promise<Books> {
+        console.log('Query: getAgentBooks');
+        return await this.bookService.getAgentBooks(memberId, input);
     }
 
 }

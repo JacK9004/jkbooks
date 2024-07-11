@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from "@nestjs/graphql";
 import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from "class-validator";
-import { AgeCategory, BookCollection, BookLanguage, BookType } from "../../enums/book.enum";
+import { AgeCategory, BookCollection, BookLanguage, BookStatus, BookType } from "../../enums/book.enum";
 import { ObjectId } from "mongoose";
 import { availableBookSorts, availableOptions } from "../../config";
 import { Direction } from "../../enums/common.enum";
@@ -173,4 +173,36 @@ export class BookInput {
         search: BISearch;
     }
 
-        
+
+    @InputType()
+    class ABISearch {
+        @IsOptional()
+        @Field(() => BookStatus, { nullable: true })
+        bookStatus?: BookStatus;
+    }
+
+    @InputType()
+    export class AgentBooksInquiry {
+        @IsNotEmpty()
+        @Min(1)
+        @Field(() => Int)
+        page: number;
+
+        @IsNotEmpty()
+        @Min(1)
+        @Field(() => Int)
+        limit: number;
+
+        @IsOptional()
+        @IsIn(availableBookSorts)
+        @Field(() => String, { nullable: true })
+        sort?: string;
+
+        @IsOptional()
+        @Field(() => Direction, { nullable: true })
+        direction?: Direction;
+
+        @IsNotEmpty()
+        @Field(() => ABISearch)
+        search: ABISearch;
+    }
