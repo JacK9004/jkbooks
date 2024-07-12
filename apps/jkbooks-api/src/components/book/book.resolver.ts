@@ -11,6 +11,7 @@ import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { BookUpdate } from '../../libs/dto/book/book.update';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class BookResolver {
@@ -71,6 +72,18 @@ export class BookResolver {
     ): Promise<Books> {
         console.log('Query: getAgentBooks');
         return await this.bookService.getAgentBooks(memberId, input);
+    }
+
+     // Likes
+    @UseGuards(AuthGuard)
+    @Mutation(() => Book)
+    public async likeTargetBook(
+        @Args('bookId') input: string,
+        @AuthMember('_id') memberId: ObjectId
+    ): Promise<Book> {
+        console.log('Mutation: likeTargetMember');
+        const likeRefId = shapeIntoMongoObjectId(input);
+        return await this.bookService.likeTargetMember(memberId, likeRefId);
     }
 
     /** ADMIN **/

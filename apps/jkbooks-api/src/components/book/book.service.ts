@@ -12,13 +12,17 @@ import { ViewGroup } from '../../libs/enums/view.enum';
 import * as moment from 'moment';
 import { BookUpdate } from '../../libs/dto/book/book.update';
 import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { LikeService } from '../like/like.service';
+import { LikeInput } from '../../libs/dto/like/like.input';
+import { LikeGroup } from '../../libs/enums/like.enum';
 
 @Injectable()
 export class BookService {
     constructor(
         @InjectModel('Book') private readonly bookModel: Model<Book>,
         private memberService: MemberService,
-        private viewService: ViewService,    
+        private viewService: ViewService,
+        private likeService: LikeService,      
 ) {}
 
 public async createBook(input: BookInput): Promise<Book> {
@@ -183,6 +187,25 @@ public async getAgentBooks(memberId: ObjectId, input: AgentBooksInquiry): Promis
 
         return result[0];
 }
+
+     //Likes
+     public async likeTargetMember(memberId: ObjectId, likeRefId: ObjectId): Promise<Book> {
+        const target: Book = await this.bookModel.findOne({ _id: likeRefId, bookStatus: BookStatus.AVAILABLE }).exec();
+        if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+        const input: LikeInput = {
+            memberId: memberId,
+            likeRefId: likeRefId,
+            likeGroup: LikeGroup.BOOK,
+        };
+
+        // LIKE TOGGLE via like modules
+        const modifier: number = await this.likeService.toggleLike(input);
+        const result = await this.bookStatsEditor({ _id: likeRefId, targetKey: 'bookLikes', modifier: modifier });
+
+        if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+        return result;
+    }
 
 public async getAllBooksByAdmin(input: AllBooksInquiry): Promise<Books> {
     const { bookStatus, bookCollectionList } = input.search;
