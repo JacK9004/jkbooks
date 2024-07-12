@@ -11,7 +11,7 @@ import { BookStatus } from '../../libs/enums/book.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import * as moment from 'moment';
 import { BookUpdate } from '../../libs/dto/book/book.update';
-import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -112,7 +112,7 @@ public async getBooks(memberId: ObjectId, input: BooksInquiry): Promise<Books> {
                     list: [
                         { $skip: (input.page - 1) * input.limit },
                         { $limit: input.limit },
-                        // meLiked
+                        lookupAuthMemberLiked(memberId),
                         lookupMember,
                         { $unwind: '$memberData' },
                     ],
