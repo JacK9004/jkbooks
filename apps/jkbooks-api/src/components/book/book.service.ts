@@ -58,6 +58,8 @@ public async getBook(memberId: ObjectId, bookId: ObjectId): Promise<Book> {
         }
 
         // meLiked
+        const likeInput = { memberId: memberId, likeRefId: bookId, likeGroup: LikeGroup.BOOK};
+        targetBook.meLiked = await this.likeService.checkLikeExistence(likeInput);
     }
 
     targetBook.memberData = await this.memberService.getMember(null, targetBook.memberId);
