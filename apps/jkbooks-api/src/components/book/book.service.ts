@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Book, Books } from '../../libs/dto/book/book';
 import { MemberService } from '../member/member.service';
-import { AgentBooksInquiry, AllBooksInquiry, BookInput, BooksInquiry } from '../../libs/dto/book/book.input';
+import { AgentBooksInquiry, AllBooksInquiry, BookInput, BooksInquiry, OrdinaryInquiry } from '../../libs/dto/book/book.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -155,6 +155,11 @@ private shapeMatchQuery(match: T, input: BooksInquiry): void {
         });
     }
 }
+
+public async getFavorites(memberId:ObjectId, input: OrdinaryInquiry): Promise<Books> {
+    return await this.likeService.getFavoriteBooks(memberId, input);
+}
+
 
 public async getAgentBooks(memberId: ObjectId, input: AgentBooksInquiry): Promise<Books> {
     const { bookStatus } = input.search;
