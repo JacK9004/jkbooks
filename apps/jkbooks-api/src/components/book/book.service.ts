@@ -160,6 +160,10 @@ public async getFavorites(memberId:ObjectId, input: OrdinaryInquiry): Promise<Bo
     return await this.likeService.getFavoriteBooks(memberId, input);
 }
 
+public async getVisited(memberId:ObjectId, input: OrdinaryInquiry): Promise<Books> {
+    return await this.viewService.getVisitedBooks(memberId, input);
+}
+
 
 public async getAgentBooks(memberId: ObjectId, input: AgentBooksInquiry): Promise<Books> {
     const { bookStatus } = input.search;

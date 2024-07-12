@@ -73,6 +73,16 @@ export class BookResolver {
         return await this.bookService.getFavorites(memberId, input);
     }
 
+    @UseGuards(AuthGuard)
+    @Query((returns) => Books)
+    public async getVisited(
+        @Args('input') input: OrdinaryInquiry,
+        @AuthMember('_id') memberId: ObjectId,        
+    ): Promise<Books> {
+        console.log('Query: getVisited');
+        return await this.bookService.getVisited(memberId, input);
+    }
+
 
     @Roles(MemberType.AGENT)
     @UseGuards(RolesGuard)

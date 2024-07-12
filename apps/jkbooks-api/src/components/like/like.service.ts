@@ -62,7 +62,8 @@ export class LikeService {
                     $facet: {
                         list: [
                             { $skip: (page-1) * limit }, 
-                            { $limit: limit}, lookupFavorite, 
+                            { $limit: limit}, 
+                            lookupFavorite, 
                             { $unwind: '$favoriteBook.memberData' },
                         ],
                         metaCounter: [{ $count: 'total' }],
