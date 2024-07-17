@@ -56,7 +56,7 @@ export class BoardArticlesInquiry {
 	limit: number;
 
 	@IsOptional()
-	@IsIn(['createdAt', 'updatedAt', 'articleLikes', 'articleViews'])
+	@IsIn(availableBoardArticleSorts)
 	@Field(() => String, { nullable: true })
 	sort?: string;
 
