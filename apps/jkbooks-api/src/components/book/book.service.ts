@@ -140,18 +140,24 @@ private shapeMatchQuery(match: T, input: BooksInquiry): void {
         text,
     } = input.search;
     if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
-    if (collectionList) match.bookCollection = { $in: collectionList };
-    if (titleList) match.bookTitle = { $in: titleList };
-    if (authorList) match.bookAuthor = { $in: authorList };
-    if (typeList) match.bookType = { $in: typeList };
-    if (ageList) match.ageCategory = { $in: ageList };
-    if (languageList) match.bookLanguages = { $in: languageList };
+    if (collectionList && collectionList.length) match.bookCollection = { $in: collectionList };
+    if (titleList && titleList.length) match.bookTitle = { $in: titleList };
+    if (authorList && authorList.length) match.bookAuthor = { $in: authorList };
+    if (typeList && typeList.length) match.bookType = { $in: typeList };
+    if (ageList && ageList.length) match.ageCategory = { $in: ageList };
+    if (languageList && languageList.length) match.bookLanguages = { $in: languageList };
 
     if (pricesRange) match.bookPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
     if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
 
-    if (text) match.bookTitle = { $regex: new RegExp(text, 'i') };
-    if (options) {
+    if (text) {
+        match['$or'] = [
+            { bookTitle: { $regex: new RegExp(text, 'i') } },
+            { bookAuthor: { $regex: new RegExp(text, 'i') } },
+            { bookISBN: { $regex: new RegExp(text, 'i') } },
+        ];
+    }
+    if (options && options.length) {
         match['$or'] = options.map((ele) => {
             return { [ele]: true };
         });
