@@ -129,6 +129,10 @@ export class BookInput {
         languageList?: BookLanguage[];
 
         @IsOptional()
+        @Field(() => [AgeCategory], { nullable: true })
+        ageList?: AgeCategory[];
+
+        @IsOptional()
         @Field(() => PricesRange, { nullable: true })
         pricesRange?: PricesRange;
 

@@ -131,6 +131,7 @@ private shapeMatchQuery(match: T, input: BooksInquiry): void {
         collectionList,
         titleList,
         authorList,
+        ageList,
         typeList,
         languageList,
         periodsRange,
@@ -143,6 +144,7 @@ private shapeMatchQuery(match: T, input: BooksInquiry): void {
     if (titleList) match.bookTitle = { $in: titleList };
     if (authorList) match.bookAuthor = { $in: authorList };
     if (typeList) match.bookType = { $in: typeList };
+    if (ageList) match.ageCategory = { $in: ageList };
     if (languageList) match.bookLanguages = { $in: languageList };
 
     if (pricesRange) match.bookPrice = { $gte: pricesRange.start, $lte: pricesRange.end };

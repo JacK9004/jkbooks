@@ -37,7 +37,7 @@ export enum BookType {
   export enum AgeCategory {
 	AGE_0_2 = 'AGE_0-2',
 	AGE_2_PLUS = 'AGE_2+',
-	AGE_3_PLUS = 'AGE_3+',
+	AGE_3_PLUS = 'AGE_3_PLUS',
 	AGE_4_PLUS = 'AGE_4+',
 	AGE_6_PLUS = 'AGE_6+',
 	AGE_8_PLUS = 'AGE_8+', 
