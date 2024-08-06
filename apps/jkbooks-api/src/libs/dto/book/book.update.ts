@@ -61,12 +61,12 @@ export class BookUpdate {
 
     @IsOptional()
     @Field(() => [String], { nullable: true })
-    propertyImages?: string[];
+    bookImages?: string[];
 
     @IsOptional()
     @Length(5, 500)
     @Field(() => String, { nullable: true })
-    bookImages?: string;
+    bookDesc?: string;
 
     @IsOptional()
     @Field(() => Boolean, { nullable: true })
