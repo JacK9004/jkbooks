@@ -55,7 +55,7 @@ export class BookInput {
     bookLanguages: BookLanguage[];
 
     @IsOptional()
-    @Length(5, 500)
+    @Length(5, 5000)
     @Field(() => String, { nullable: true })
     bookDesc?: string;
 

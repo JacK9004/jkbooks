@@ -18,8 +18,8 @@ export class BoardArticle {
 	@Field(() => String)
 	articleTitle: string;
 
-	@Field(() => String)
-	articleContent: string;
+	@Field(() => String, { nullable: true })
+	articleContent?: string;
 
 	@Field(() => String, { nullable: true })
 	articleImage?: string;
@@ -31,7 +31,7 @@ export class BoardArticle {
 	articleLikes: number;
 
 	@Field(() => Int)
-	articleComments: number;
+	articleComments?: number;
 
 	@Field(() => String)
 	memberId: ObjectId;
