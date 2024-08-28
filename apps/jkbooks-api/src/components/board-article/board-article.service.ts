@@ -14,13 +14,21 @@ import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
+import { Member } from '../../libs/dto/member/member';
+import { MemberStatus } from '../../libs/enums/member.enum';
 
 @Injectable()
 export class BoardArticleService {
-    constructor(@InjectModel('BoardArticle') private readonly boardArticleModel: Model<BoardArticle>,
+    constructor
+    (@InjectModel('BoardArticle') private readonly boardArticleModel: Model<BoardArticle>,
+    @InjectModel('Member') private readonly memberModel: Model<Member>,
     private readonly memberService: MemberService,
     private readonly viewService: ViewService,
     private readonly likeService: LikeService,
+    private readonly notificationService: NotificationService,
 ) {}
 
 public async createBoardArticle(memberId: ObjectId, input: BoardArticleInput): Promise<BoardArticle> {
@@ -128,7 +136,8 @@ public async getBoardArticle(memberId: ObjectId, articleId: ObjectId): Promise<B
         .findOne({ _id: likeRefId, articleStatus: BoardArticleStatus.ACTIVE })
         .exec();
     if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-
+    const authMember: Member = await this.memberModel.findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE }).exec();
+    if (!authMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
     const input: LikeInput = {
         memberId: memberId,
         likeRefId: likeRefId,
@@ -137,14 +146,28 @@ public async getBoardArticle(memberId: ObjectId, articleId: ObjectId): Promise<B
 
     // LIKE TOGGLE via like modules
     const modifier: number = await this.likeService.toggleLike(input);
-    const result = await this.boardArticleStatsEditor({ 
-        _id: likeRefId, 
-        targetKey: 'articleLikes', 
+    if(modifier === 1) {
+        const notificationInput: NotificationInput = {
+            notificationType: NotificationType.LIKE,
+            notificationStatus: NotificationStatus.WAIT,
+            notificationGroup: NotificationGroup.ARTICLE,
+            notificationTitle: 'New Like',
+            notificationDesc: `${authMember.memberNick} liked your article ${target.articleTitle}`,
+
+            authorId: memberId,
+            receiverId: target.memberId,
+            articleId: likeRefId
+        };
+        await this.notificationService.createNotification(notificationInput);
+    }
+    const result = await this.boardArticleStatsEditor({
+        _id: likeRefId,
+        targetKey: 'articleLikes',
         modifier: modifier,
     });
-
     if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
-    return result;
+
+   return result;
 }
 
     public async getAllBoardArticlesByAdmin(input: AllBoardArticlesInquiry): Promise<BoardArticles> {

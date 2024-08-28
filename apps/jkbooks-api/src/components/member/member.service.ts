@@ -16,14 +16,20 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { lookupAuthMemberLiked } from '../../libs/config';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class MemberService {
-    constructor(@InjectModel('Member') private readonly memberModel: Model<Member>,
+    constructor
+    (@InjectModel('Member') private readonly memberModel: Model<Member>,
     @InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
+
     private authService: AuthService,
     private viewService: ViewService,
     private likeService: LikeService,
+    private readonly notificationService: NotificationService,
 ) {}
     
     public async signup(input: MemberInput): Promise<Member> {
@@ -149,6 +155,8 @@ public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Member
         const target: Member = await this.memberModel.findOne({ _id: likeRefId, memberStatus: MemberStatus.ACTIVE }).exec();
         if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
+        const authMember: Member = await this.memberModel.findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE }).exec();
+		if (!authMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
         const input: LikeInput = {
             memberId: memberId,
             likeRefId: likeRefId,
@@ -156,12 +164,21 @@ public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Member
         };
 
         // LIKE TOGGLE via like modules
-        const modifier: number = await this.likeService.toggleLike(input);
-        const result = await this.memberStatsEditor({ _id: likeRefId, targetKey: 'memberLikes', modifier: modifier });
-
-        if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
-        return result;
-    }
+		const modifier: number = await this.likeService.toggleLike(input);
+		const result = await this.memberStatsEditor({ _id: likeRefId, targetKey: 'memberLikes', modifier: modifier });
+		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+		const notificationInput: NotificationInput = {
+			notificationType: NotificationType.LIKE,
+			notificationStatus: NotificationStatus.WAIT,
+			notificationGroup: NotificationGroup.MEMBER,
+			notificationTitle: 'New Like',
+			notificationDesc: `${authMember.memberNick} liked your photo `,
+			authorId: memberId,
+			receiverId: target._id,
+		};
+		await this.notificationService.createNotification(notificationInput);
+		return result;
+	}
 
 public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
     const { memberStatus, memberType, text } = input.search;

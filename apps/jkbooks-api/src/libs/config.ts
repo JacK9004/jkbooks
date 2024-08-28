@@ -117,6 +117,14 @@ export const lookupMember = {
         as:'memberData',
     },
 };
+export const lookupMemberNotication = {
+	$lookup: {
+		from: 'members',
+		localField: 'authorId',
+		foreignField: '_id',
+		as: 'memberData',
+	},
+};
 
 export const lookupFollowingData = {
     $lookup: {

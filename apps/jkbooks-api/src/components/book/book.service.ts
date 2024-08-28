@@ -15,14 +15,22 @@ import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
+import { NotificationService } from '../notification/notification.service';
+import { Member } from '../../libs/dto/member/member';
+import { MemberStatus } from '../../libs/enums/member.enum';
 
 @Injectable()
 export class BookService {
     constructor(
         @InjectModel('Book') private readonly bookModel: Model<Book>,
+		@InjectModel('Member') private readonly memberModel: Model<Member>,
+
         private memberService: MemberService,
         private viewService: ViewService,
-        private likeService: LikeService,      
+        private likeService: LikeService,
+        private readonly notificationService: NotificationService,      
 ) {}
 
 public async createBook(input: BookInput): Promise<Book> {
@@ -208,23 +216,35 @@ public async getAgentBooks(memberId: ObjectId, input: AgentBooksInquiry): Promis
 }
 
      //Likes
-     public async likeTargetMember(memberId: ObjectId, likeRefId: ObjectId): Promise<Book> {
+     public async likeTargetBook(memberId: ObjectId, likeRefId: ObjectId): Promise<Book> {
         const target: Book = await this.bookModel.findOne({ _id: likeRefId, bookStatus: BookStatus.AVAILABLE }).exec();
         if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-        const input: LikeInput = {
-            memberId: memberId,
-            likeRefId: likeRefId,
-            likeGroup: LikeGroup.BOOK,
-        };
+        const authMember: Member = await this.memberModel.findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE }).exec();
+		if (!authMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		const input: LikeInput = {
+			memberId: memberId,
+			likeRefId: likeRefId,
+			likeGroup: LikeGroup.BOOK,
+		};
+		const modifier: number = await this.likeService.toggleLike(input);
+		const result = await this.bookStatsEditor({ _id: likeRefId, targetKey: 'bookLikes', modifier: modifier });
+		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+		const notificationInput: NotificationInput = {
+			notificationType: NotificationType.LIKE,
+			notificationStatus: NotificationStatus.WAIT,
+			notificationGroup: NotificationGroup.BOOK,
+			notificationTitle: 'New Like',
+			notificationDesc: `${authMember.memberNick} liked your book ${target.bookTitle} `,
 
-        // LIKE TOGGLE via like modules
-        const modifier: number = await this.likeService.toggleLike(input);
-        const result = await this.bookStatsEditor({ _id: likeRefId, targetKey: 'bookLikes', modifier: modifier });
-
-        if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
-        return result;
-    }
+			authorId: memberId,
+			receiverId: target.memberId,
+			bookId: likeRefId
+		};
+		await this.notificationService.createNotification(notificationInput);
+	
+		return result;
+	}
 
 public async getAllBooksByAdmin(input: AllBooksInquiry): Promise<Books> {
     const { bookStatus, bookCollectionList } = input.search;

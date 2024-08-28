@@ -104,7 +104,7 @@ export class BookResolver {
     ): Promise<Book> {
         console.log('Mutation: likeTargetMember');
         const likeRefId = shapeIntoMongoObjectId(input);
-        return await this.bookService.likeTargetMember(memberId, likeRefId);
+        return await this.bookService.likeTargetBook(memberId, likeRefId);
     }
 
     /** ADMIN **/
