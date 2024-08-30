@@ -4,7 +4,7 @@ export enum FaqCategory {
     BOOK = 'BOOK',
     PAYMENTS = 'PAYMENTS',
     BUYERS = 'BUYERS',
-    AGENTS = 'AGENTS',
+    PUBLISHERS = 'PUBLISHERS',
     MEMBERSHIP = 'MEMBERSHIP',
     COMMUNITY = 'COMMUNITY',
     OTHER = 'OTHER'  

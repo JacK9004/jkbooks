@@ -31,7 +31,7 @@ export class NotificationDto {
 	receiverId: string;
 
 	@Field(() => String, { nullable: true })
-	propertyId?: string;
+	bookId?: string;
 
 	@Field(() => String, { nullable: true })
 	articleId?: string;
