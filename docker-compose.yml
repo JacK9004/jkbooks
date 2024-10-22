@@ -1,4 +1,3 @@
-version: "3.3"
 
 services:
   booking-api:
@@ -6,7 +5,7 @@ services:
     restart: always
     image: node:20.10.0
     ports:
-      - 4001:9009
+      - 4001:3007
     volumes:
       - ./:/usr/src/jkbooks
     working_dir: /usr/src/jkbooks
@@ -22,7 +21,7 @@ services:
     restart: unless-stopped
     image: node:20.10.0
     ports:
-      - 4002:9010
+      - 4002:3008
     volumes:
       - ./:/usr/src/jkbooks
     working_dir: /usr/src/jkbooks
