@@ -7,8 +7,8 @@ services:
     ports:
       - 4001:3007
     volumes:
-      - ./:/usr/src/jkbooks
-    working_dir: /usr/src/jkbooks
+      - ./:/usr/src/jkbooks-api
+    working_dir: /usr/src/jkbooks-api
     networks:
       - monorepo-network
     # FOR PRODUCTION
@@ -23,8 +23,8 @@ services:
     ports:
       - 4002:3008
     volumes:
-      - ./:/usr/src/jkbooks
-    working_dir: /usr/src/jkbooks
+      - ./:/usr/src/jkbooks-batch
+    working_dir: /usr/src/jkbooks-batch
     networks:
       - monorepo-network
     # FOR PRODUCTION
