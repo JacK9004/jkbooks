@@ -54,7 +54,7 @@ public async getBook(memberId: ObjectId, bookId: ObjectId): Promise<Book> {
         bookStatus: BookStatus.AVAILABLE,
     };
 
-    const targetBook: Book = await this.bookModel.findOne(search).lean().exec();
+    const targetBook: Book = await this.bookModel.findOne(search).exec();
     if (!targetBook) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     if (memberId) {

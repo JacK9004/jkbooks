@@ -53,7 +53,7 @@ public async getBoardArticle(memberId: ObjectId, articleId: ObjectId): Promise<B
         _id: articleId,
         articleStatus: BoardArticleStatus.ACTIVE,
     };
-    const targetBoardArticle: BoardArticle = await this.boardArticleModel.findOne(search).lean().exec();
+    const targetBoardArticle: BoardArticle = await this.boardArticleModel.findOne(search).exec();
     if (!targetBoardArticle) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     if (memberId) {

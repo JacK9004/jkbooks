@@ -27,7 +27,7 @@ export class NotificationService {
 			_id: notificationId,
 		};
 
-		const targetNotification: NotificationDto = await this.notificationModel.findOne(search).lean().exec();
+		const targetNotification: NotificationDto = await this.notificationModel.findOne(search).exec();
 		if (!targetNotification) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 		return targetNotification;
 	}

@@ -26,7 +26,7 @@ export class FaqService {
 			faqStatus: FaqStatus.ACTIVE,
 		};
 
-		const targetFaq: Faq = await this.faqModel.findOne(search).lean().exec();
+		const targetFaq: Faq = await this.faqModel.findOne(search).exec();
 		if (!targetFaq) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		if (memberId) {

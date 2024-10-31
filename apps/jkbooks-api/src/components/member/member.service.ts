@@ -90,7 +90,7 @@ export class MemberService {
                 $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
             },
         };
-        const targetMember = await this.memberModel.findOne(search).lean().exec();
+        const targetMember = await this.memberModel.findOne(search).exec();
         if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
         if (memberId) {
